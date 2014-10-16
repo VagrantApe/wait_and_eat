@@ -6,9 +6,14 @@
 // Demonstrate how to register services
 // In this case it is a simple value service.
 angular.module('myApp.services', [])
-  .value('FIREBASEURL', 'https://waitandeat-vagrant.firebaseio.com/')
-  .factory('authService', function($firebaseSimpleLogin, $location, FIREBASEURL) {
-    var authRef = new Firebase(FIREBASEURL);
+  .value('FIREBASE_URL', 'https://waitandeat-vagrant.firebaseio.com/')
+  .factory('dataService', function($firebase, FIREBASE_URL){
+    var dataReference = new Firebase(FIREBASE_URL);
+    var fireData = $firebase(dataReference);
+    return fireData;
+  })
+  .factory('authService', function($firebaseSimpleLogin, $location, $rootScope, FIREBASE_URL) {
+    var authRef = new Firebase(FIREBASE_URL);
     var auth = $firebaseSimpleLogin(authRef);
     var authServiceObject = {
       register: function(user){
@@ -28,5 +33,46 @@ angular.module('myApp.services', [])
         $location.path('/');
       }
     };
+
+    $rootScope.$on("$firebaseSimpleLogin:login", function(e, user){
+      $rootScope.currentUser = user;
+    });
+
+    $rootScope.$on("$firebaseSimpleLogin:logout", function(){
+      $rootScope.currentUser = null;
+    });
+
     return authServiceObject;
+  })
+
+  .factory('partyService', function(dataService) {
+    var parties = dataService.$child('parties');
+
+    var partyServiceObject = {
+      parties: parties,
+      saveParty: function(party){
+        parties.$add(party);
+      }
+    };
+
+    return partyServiceObject;
+  })
+
+  .factory('textMessageService', function(dataService, partyService) {
+    //(425) 276-7286
+    var textMessages = dataService.$child('textMessages');
+
+    var textMessageServiceObject = {
+      sendTextMessage: function (party) {
+        var newTextMessage = {
+          phoneNumber: party.phone,
+          size: party.size,
+          name: party.name
+        };
+        textMessages.$add(newTextMessage);
+        party.notified = "Yes";
+        partyService.parties.$save(party.$id);
+      }
+    };
+    return textMessageServiceObject;
   });

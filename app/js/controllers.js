@@ -6,37 +6,26 @@ angular.module('myApp.controllers', [])
   .controller('LandingPageController', [function() {
 
   }])
-  .controller('WaitlistController', ['$scope', '$firebase','FIREBASEURL', function($scope, $firebase, FIREBASEURL) {
-    var partiesRef = new Firebase(FIREBASEURL + 'parties');
+  .controller('WaitlistController', ['$scope', 'partyService', 'textMessageService' , function($scope, partyService, textMessageService) {
 
-    $scope.parties = $firebase(partiesRef);
-
+    $scope.parties = partyService.parties;
     $scope.newParty = {name: '', phone: '', size:'', done: false, notified: "No"};
 
     $scope.saveParty = function(){
-      $scope.parties.$add($scope.newParty);
-      $scope.newParty = {name: '', phone: '', size:'', done: false,  notified: "No"};
-    }
+      partyService.saveParty($scope.newParty);
+      $scope.newParty = {name: '', phone: '', size:'', done: false, notified: "No"};
+    };
 
     $scope.removeParty = function(id){
       $scope.parties.$remove(id)
-    }
+    };
 
     //(425) 276-7286
-    $scope.sendSMS = function(party){
-      var textMessageRef = new Firebase(FIREBASEURL + 'textMessages');
-      var textMessages = $firebase(textMessageRef);
-      var newTextMessage = {
-        phoneNumber: party.phone,
-        size: party.size,
-        name: party.name
-      };
-      textMessages.$add(newTextMessage);
-      party.notified = "Yes";
-      $scope.parties.$save(party.$id);
-    }
+    $scope.sendTextMessage = function(party){
+      textMessageService.sendTextMessage(party);
+    };
   }])
-  .controller('AuthController', ['$scope', 'authService',function($scope, authService){
+  .controller('AuthController', ['$scope', 'authService', function($scope, authService){
 
     $scope.user = {
       email:'',
@@ -52,6 +41,6 @@ angular.module('myApp.controllers', [])
     };
 
     $scope.logout = function(){
-      authService.(logout);
+      authService.logout();
     };
   }]);
