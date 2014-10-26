@@ -12,7 +12,7 @@ angular.module('myApp.services', [])
     var fireData = $firebase(dataReference);
     return fireData;
   })
-  .factory('authService', function($firebaseSimpleLogin, $location, $rootScope, FIREBASE_URL) {
+  .factory('authService', function(FIREBASE_URL, $firebaseSimpleLogin, $location, $rootScope) {
     var authRef = new Firebase(FIREBASE_URL);
     var auth = $firebaseSimpleLogin(authRef);
     var authServiceObject = {
@@ -31,6 +31,9 @@ angular.module('myApp.services', [])
       logout: function(){
         auth.$logout();
         $location.path('/');
+      },
+      getCurrentUser: function(){
+        return auth.$getCurrentUser();
       }
     };
 
@@ -44,20 +47,20 @@ angular.module('myApp.services', [])
 
     return authServiceObject;
   })
-
   .factory('partyService', function(dataService) {
-    var parties = dataService.$child('parties');
+    var users = dataService.$child('users');
 
     var partyServiceObject = {
-      parties: parties,
-      saveParty: function(party){
-        parties.$add(party);
+      saveParty: function(party, userId){
+       users.$child(userId).$child('parties').$add(party);
+      },
+      getPartiesByUserId: function(userId){
+        return users.$child(userId).$child('parties');
       }
     };
 
     return partyServiceObject;
   })
-
   .factory('textMessageService', function(dataService, partyService) {
     //(425) 276-7286
     var textMessages = dataService.$child('textMessages');
