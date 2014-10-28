@@ -1,4 +1,5 @@
 ### Great tutorial by [Gordon Zhu](https://www.angularcourse.com/)
+See working site at : [Wait and Eat](https://waitandeat-vagrant.firebaseapp.com/#/)
 
 # angular-seed — the seed for AngularJS apps
 
