@@ -25,7 +25,7 @@ angular.module('myApp.controllers', [])
 
     //(425) 276-7286
     $scope.sendTextMessage = function(party){
-      textMessageService.sendTextMessage(party);
+      textMessageService.sendTextMessage(party, $scope.currentUser.id);
     };
   }])
   .controller('AuthController', ['$scope', 'authService', function($scope, authService){
